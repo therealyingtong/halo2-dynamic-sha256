@@ -56,7 +56,7 @@ use halo2_dynamic_sha256::Sha256DynamicConfig;
 const K: u32 = 17;
 
 fn bench(name: &str, k: u32, c: &mut Criterion) {
-    let mut group = c.benchmark_group("SHA256: 128 bytes input * 2");
+    let mut group = c.benchmark_group("SHA256");
     group.sample_size(10);
     #[derive(Debug, Clone)]
     struct BenchCircuit<F: PrimeField> {
@@ -81,7 +81,7 @@ fn bench(name: &str, k: u32, c: &mut Criterion) {
                 Self::NUM_FIXED,
                 Self::LOOKUP_BITS,
                 0,
-                17,
+                K as usize,
             );
             let sha256: Sha256DynamicConfig<F> = Sha256DynamicConfig::configure(
                 meta,
@@ -150,7 +150,7 @@ fn bench(name: &str, k: u32, c: &mut Criterion) {
     let params: ParamsKZG<Bn256> =
         ParamsKZG::read::<_>(&mut BufReader::new(params_fs)).expect("Failed to read params");
 
-    let test_inputs = vec![vec![0x1; 56], vec![0u8, 0u8, 0u8]];
+    let test_inputs = vec![vec![0x1; 640], vec![0u8, 0u8, 0u8]];
     let circuit = BenchCircuit {
         test_inputs,
         _f: PhantomData,
@@ -211,7 +211,6 @@ fn bench(name: &str, k: u32, c: &mut Criterion) {
 
 fn criterion_benchmark(c: &mut Criterion) {
     bench("sha256", K, c);
-    // bench("sha256", 20, c);
 }
 
 criterion_group!(benches, criterion_benchmark);
